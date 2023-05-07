@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client-deployment
+  labels:
+    app: client-pod
+spec:
+  replicas: 2
+  selector:
+    matchLabels: 
+      app: client-pod
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: client-pod
+        tier: frontend
+    spec:
+      containers:
+      - name: client-container
+        image: gcr.io/tids-ta-abilidad/tids-skills-matrix-client:0.0.1
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80 
+        resources:
+          limits:
+            memory: '128Mi'
+            cpu: '200m'
+        livenessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+          periodSeconds: 5
+          failureThreshold: 1
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 5
+          failureThreshold: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: client-service
+spec:
+  selector:
+    app: client-pod
+    tier: frontend
+  ports:
+  - name: client-pod
+    protocol: TCP
+    port: 8080
+    targetPort: 80

@@ -1,0 +1,33 @@
+@font-face {
+  font-family: "HelveticaNeueLTStd-Lt";
+  src: local("HelveticaNeueLTStd-Lt"), url("../fonts/HelveticaNeueLTStd-Lt.otf") format("opentype");
+  font-weight: normal;
+}
+
+.tip-purple {
+  background-color: #4b286d !important;
+}
+
+.tip-font {
+  font-family: "HelveticaNeueLTStd-Lt" !important;
+}
+
+.tip-font-purple {
+  color: #4b286d !important;
+}
+
+.tip-accessible-green {
+  background-color: #2b8000 !important;
+}
+
+/* This is to remove sweet alert 2's unwanted dropdown */
+.swal2-container {
+  font-family: "HelveticaNeueLTStd-Lt" !important;
+}
+
+.telus_small_logo {
+  width: 30px;
+  height: 30px;
+  vertical-align: top !important;
+  display: inline-block !important;
+}

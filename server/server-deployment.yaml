@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-deployment
+  labels:
+    app: server-pod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: server-pod
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: server-pod
+        tier: backend
+    spec:
+      serviceAccountName: tids-skills-matrix-app-svc-acct
+      containers:
+      - name: server-container
+        image: gcr.io/tids-ta-abilidad/tids-skills-matrix-server:0.0.1
+        imagePullPolicy: Always
+        env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: username
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: password
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: database
+        ports:
+        - name: http
+          protocol: TCP
+          containerPort: 3001
+      - name: cloud-sql-proxy
+        image: gcr.io/cloudsql-docker/gce-proxy:1.22.0
+        command:
+          - "/cloud_sql_proxy"
+          - "-instances=tids-ta-abilidad:asia-southeast1:tids-skills-matrix=tcp:3306"
+          - "-credential_file=/secrets/cloudsql/credentials.json"
+        securityContext:
+          runAsNonRoot: true
+        volumeMounts:
+        - name: cloudsql-instance-credentials
+          mountPath: /secrets/cloudsql
+          readOnly: true
+      volumes:
+      - name: cloudsql-instance-credentials
+        secret:
+          secretName: cloudsql-instance-credentials
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-service
+spec:
+  selector:
+    app: server-pod
+    tier: backend
+  ports:
+  - name: server-pod
+    protocol: TCP
+    port: 3001
+    targetPort: 3001
